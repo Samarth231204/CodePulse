@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: codepulse_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-codepulse_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-codepulse_password}
+      POSTGRES_DB: ${POSTGRES_DB:-codepulse_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-codepulse_user} -d ${POSTGRES_DB:-codepulse_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: codepulse_backend
+    volumes:
+      - ./backend:/workspace
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-codepulse_user}:${POSTGRES_PASSWORD:-codepulse_password}@db:5432/${POSTGRES_DB:-codepulse_dev}
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173", "http://127.0.0.1:5173"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: codepulse_frontend
+    volumes:
+      - ./frontend:/workspace
+      - /workspace/node_modules
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

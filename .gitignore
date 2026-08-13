@@ -1,0 +1,54 @@
+# Node.js dependencies and build files
+node_modules/
+dist/
+build/
+.pnpm-store/
+.npm/
+.yarn/
+*.log
+
+# Python cache and environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+.pytest_cache/
+
+# IDE / System files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Application environment files and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Terraform / IaC files
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Docker / DB data volumes
+pgdata/

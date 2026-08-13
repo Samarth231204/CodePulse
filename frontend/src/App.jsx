@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { Activity, Database, RefreshCw, CheckCircle2, AlertTriangle, Server } from 'lucide-react'
 
-interface HealthResponse {
-  status: string;
-  db: string;
-}
-
 function App() {
-  const [healthData, setHealthData] = useState<HealthResponse | null>(null)
+  const [healthData, setHealthData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
 
   const fetchHealth = async () => {
     setLoading(true)
     setError(null)
     try {
-      // In local dev, Vite proxies /api/* to http://backend:8000/*
       const response = await fetch('/api/health')
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data: HealthResponse = await response.json()
+      const data = await response.json()
       setHealthData(data)
-    } catch (e: any) {
+    } catch (e) {
       console.error("Failed to fetch health check", e)
       setError(e.message || "Backend server is unreachable")
       setHealthData(null)
@@ -74,7 +68,7 @@ function App() {
               </div>
               <div style={{ marginTop: '1rem', color: '#64748b', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                 <Activity size={14} />
-                <span>FastAPI Service (Port 8000)</span>
+                <span>Express API (Port 8000)</span>
               </div>
             </div>
 
@@ -146,7 +140,7 @@ function App() {
             }}>
               <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
-                <strong>App partially healthy:</strong> FastAPI backend booted successfully, but could not connect to PostgreSQL. Verify that your DB credentials are correct and database container is running.
+                <strong>App partially healthy:</strong> Express backend booted successfully, but could not connect to PostgreSQL. Verify that your DB credentials are correct and database container is running.
               </div>
             </div>
           )}
@@ -177,7 +171,7 @@ function App() {
             onClick={fetchHealth} 
             disabled={loading}
           >
-            <RefreshCw size={16} className={loading ? 'spin-animation' : ''} style={{
+            <RefreshCw size={16} style={{
               animation: loading ? 'spin 1s linear infinite' : 'none'
             }} />
             <span>{loading ? 'Refreshing...' : 'Refresh Status'}</span>
@@ -186,7 +180,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>CodePulse Control Plane • Built with FastAPI, React, TypeScript, and Docker</p>
+        <p>CodePulse Control Plane • Built with Express, React, and Docker</p>
       </footer>
 
       {/* Inject custom spin animation */}

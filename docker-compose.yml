@@ -18,15 +18,33 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
+  express-backend:
+    build:
+      context: ./express-backend
+      dockerfile: Dockerfile
+    container_name: codepulse_express_backend
+    volumes:
+      - ./express-backend:/workspace
+      - /workspace/node_modules
+    ports:
+      - "${EXPRESS_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-codepulse_user}:${POSTGRES_PASSWORD:-codepulse_password}@db:5432/${POSTGRES_DB:-codepulse_dev}
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173", "http://127.0.0.1:5173"]
+      - BACKEND_PORT=8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  fastapi-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: codepulse_backend
+    container_name: codepulse_fastapi_backend
     volumes:
       - ./backend:/workspace
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${FASTAPI_PORT:-8001}:8000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-codepulse_user}:${POSTGRES_PASSWORD:-codepulse_password}@db:5432/${POSTGRES_DB:-codepulse_dev}
       - BACKEND_CORS_ORIGINS=["http://localhost:5173", "http://127.0.0.1:5173"]
@@ -47,7 +65,7 @@ services:
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
-      - backend
+      - express-backend
 
 volumes:
   pgdata:
